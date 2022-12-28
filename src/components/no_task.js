@@ -1,17 +1,18 @@
 import {createElement} from "../utills.js";
 
-const getTempCatalog = () => {
-  return `<section class="board container">
-</section>`;
+const createNoTaskTemplate = () => {
+  return `<p class="board__no-tasks">
+    Click «ADD NEW TASK» in menu to create your first task
+  </p>`;
 };
 
-class TempCatalog {
+class TempNoTask {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return getTempCatalog();
+    return createNoTaskTemplate();
   }
 
   getElement() {
@@ -27,4 +28,4 @@ class TempCatalog {
   }
 }
 
-export {TempCatalog};
+export {TempNoTask};

@@ -1,4 +1,4 @@
-import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate} from "../utills.js";
+import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate, createElement} from "../utills.js";
 
 const getTempCard = (data) => {
   const {color, description, dueDate, repeating, isArchive, isFavorite} = data;
@@ -90,4 +90,28 @@ const getTempCard = (data) => {
 </article>`;
 };
 
-export {getTempCard};
+class TempCard {
+  constructor(task) {
+    this._task = task;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getTempCard(this._task);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+export {TempCard};

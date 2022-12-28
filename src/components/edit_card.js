@@ -1,5 +1,22 @@
 import {COLORS} from "../const.js";
-import {isTaskRepeating, humanizeTaskDueDate} from "../utills.js";
+import {isTaskRepeating, humanizeTaskDueDate, createElement} from "../utills.js";
+
+const BLANK_TASK = {
+  color: COLORS[0],
+  description: ``,
+  dueDate: null,
+  repeating: {
+    mo: false,
+    tu: false,
+    we: false,
+    th: false,
+    fr: false,
+    sa: false,
+    su: false
+  },
+  isArchive: false,
+  isFavorite: false
+};
 
 // Функция формирования шаблона активной даты задачи
 const createTaskEditDateTemplate = (dueDate) => {
@@ -60,20 +77,7 @@ const createTaskEditColorsTemplate = (currentColor) => {
 };
 
 const getTempEditCard = (task = {}) => {
-  const {
-    color = `black`,
-    description = ``,
-    dueDate = null,
-    repeating = {
-      mo: false,
-      tu: false,
-      we: false,
-      th: false,
-      fr: false,
-      sa: false,
-      su: false
-    }
-  } = task;
+  const {color, description, dueDate, repeating} = task;
 
   const dateTemplate = createTaskEditDateTemplate(dueDate);
 
@@ -188,4 +192,27 @@ const getTempEditCard = (task = {}) => {
 </article>`;
 };
 
-export {getTempEditCard};
+class TempEditCard {
+  constructor(task = BLANK_TASK) {
+    this._task = task;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getTempEditCard(this._task);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+export {TempEditCard};

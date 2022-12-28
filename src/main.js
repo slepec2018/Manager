@@ -1,12 +1,16 @@
-import {getTempMenu} from "./components/menu.js";
-import {getTempFilters} from "./components/filters.js";
-import {getTempCatalog} from "./components/catalog.js";
-import {getTempCard} from "./components/card.js";
-import {getTempEditCard} from "./components/edit_card.js";
-import {getTempButtonLoad} from "./components/button_load.js";
+import {TempMenu} from "./components/menu.js";
+import {TempFilters} from "./components/filters.js";
+import {TempCatalog} from "./components/catalog.js";
+import {TempCard} from "./components/card.js";
+import {TempEditCard} from "./components/edit_card.js";
+import {TempButtonLoad} from "./components/button_load.js";
+import {TempSort} from "./components/sort.js";
+import {TempCardList} from "./components/card_list.js";
+import {TempNoTask} from "./components/no_task.js";
 
 import {generateCardData} from "./mock/card_mock.js";
 import {generateFilter} from "./mock/filters.js";
+import {render, RenderPosition} from "./utills.js";
 
 // Переменные основных блоков
 const main = document.querySelector(`.main`);
@@ -22,48 +26,93 @@ const tasks = new Array(TASK_COUNT).fill().map(generateCardData);
 // Генерирование статистики фильтров
 const filters = generateFilter(tasks);
 
-// Функция рендеринга кода html в основные блоки
-const renderTemp = (container, temp, place) => {
-  container.insertAdjacentHTML(place, temp);
+const renderCard = (taskListElement, task) => {
+  const taskComponent = new TempCard(task);
+  const taskEditComponent = new TempEditCard(task);
+
+  const replaceCardToForm = () => {
+    taskListElement.replaceChild(taskEditComponent.getElement(), taskComponent.getElement());
+  };
+
+  const replaceFormToCard = () => {
+    taskListElement.replaceChild(taskComponent.getElement(), taskEditComponent.getElement());
+  };
+
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      replaceFormToCard();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
+  taskComponent.getElement().querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
+    replaceCardToForm();
+    document.addEventListener(`keydown`, onEscKeyDown);
+  });
+
+  taskEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    replaceFormToCard();
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+
+  render(taskListElement, taskComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
 // Рендеринг меню
-renderTemp(mainControl, getTempMenu(), `beforeend`);
+
+const renderBoard = (boardContainer, boardTasks) => {
+  const boardComponent = new TempCatalog();
+  const taskListComponent = new TempCardList();
+
+  render(boardContainer, boardComponent.getElement(), RenderPosition.BEFOREEND);
+
+  // По условию заглушка должна показываться,
+  // когда нет задач или все задачи в архиве.
+  // Мы могли бы написать:
+  // tasks.length === 0 || tasks.every((task) => task.isArchive)
+  // Но благодаря тому, что на пустом массиве every вернёт true,
+  // мы можем опустить "tasks.length === 0".
+  // p.s. А метод some на пустом массиве наборот вернет false
+  if (boardTasks.every((task) => task.isArchive)) {
+    render(boardComponent.getElement(), new TempNoTask().getElement(), RenderPosition.AFTERBEGIN);
+    return;
+  }
+
+  render(boardComponent.getElement(), new TempSort().getElement(), RenderPosition.BEFOREEND);
+  render(boardComponent.getElement(), taskListComponent.getElement(), RenderPosition.BEFOREEND);
+
+  boardTasks
+    .slice(0, Math.min(tasks.length, TASK_COUNT_PER_STEP))
+    .forEach((boardTask) => renderCard(taskListComponent.getElement(), boardTask));
+
+  if (boardTasks.length > TASK_COUNT_PER_STEP) {
+    let renderedTaskCount = TASK_COUNT_PER_STEP;
+
+    const loadMoreButtonComponent = new TempButtonLoad();
+
+    render(boardComponent.getElement(), loadMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
+
+    loadMoreButtonComponent.getElement().addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      boardTasks
+        .slice(renderedTaskCount, renderedTaskCount + TASK_COUNT_PER_STEP)
+        .forEach((boardTask) => renderCard(taskListComponent.getElement(), boardTask));
+
+      renderedTaskCount += TASK_COUNT_PER_STEP;
+
+      if (renderedTaskCount >= boardTasks.length) {
+        loadMoreButtonComponent.getElement().remove();
+        loadMoreButtonComponent.removeElement();
+      }
+    });
+  }
+};
+
+render(mainControl, new TempMenu().getElement(), RenderPosition.BEFOREEND);
 // Рендеринг фильтров
-renderTemp(mainControl, getTempFilters(filters), `afterend`);
-// Рендеринг каталога карточек обьявлений
-renderTemp(main, getTempCatalog(), `beforeend`);
+render(main, new TempFilters(filters).getElement(), RenderPosition.BEFOREEND);
 
-// Основные переменные каталога
-const catalog = main.querySelector(`.board`);
-const catalogList = catalog.querySelector(`.board__tasks`);
+renderBoard(main, tasks);
 
-// Рендеринг редактирования карточки задачи
-renderTemp(catalogList, getTempEditCard(tasks[0]), `afterbegin`);
-
-// Рендеринг карточек задач
-for (let i = 1; i < Math.min(tasks.length, TASK_COUNT_PER_STEP); i++) {
-  renderTemp(catalogList, getTempCard(tasks[i]), `beforeend`);
-}
-
-// Проверка длинны карточек в каталоге и приминения кнопки еще
-if (tasks.length > TASK_COUNT_PER_STEP) {
-  let renderedTaskCount = TASK_COUNT_PER_STEP;
-
-  renderTemp(catalog, getTempButtonLoad(), `beforeend`);
-
-  const loadMoreButton = catalog.querySelector(`.load-more`);
-
-  loadMoreButton.addEventListener(`click`, (evt) => {
-    evt.preventDefault();
-    tasks
-      .slice(renderedTaskCount, renderedTaskCount + TASK_COUNT_PER_STEP)
-      .forEach((task) => renderTemp(catalogList, getTempCard(task), `beforeend`));
-
-    renderedTaskCount += TASK_COUNT_PER_STEP;
-
-    if (renderedTaskCount >= tasks.length) {
-      loadMoreButton.remove();
-    }
-  });
-}

@@ -1,17 +1,16 @@
 import {createElement} from "../utills.js";
 
-const getTempCatalog = () => {
-  return `<section class="board container">
-</section>`;
+const createTaskListTemplate = () => {
+  return `<div class="board__tasks"></div>`;
 };
 
-class TempCatalog {
+class TempCardList {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return getTempCatalog();
+    return createTaskListTemplate();
   }
 
   getElement() {
@@ -27,4 +26,4 @@ class TempCatalog {
   }
 }
 
-export {TempCatalog};
+export {TempCardList};

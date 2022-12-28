@@ -1,3 +1,5 @@
+import {createElement} from "../utills.js";
+
 const getTempMenu = () => {
   return `<section class="control__btn-wrap">
   <input
@@ -29,4 +31,26 @@ const getTempMenu = () => {
 </section>`;
 };
 
-export {getTempMenu};
+class TempMenu {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getTempMenu();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+export {TempMenu};

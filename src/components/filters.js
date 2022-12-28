@@ -1,3 +1,5 @@
+import {createElement} from "../utills.js";
+
 // Функция формирования шаблонов кнопок фильтров
 const getTempFilterItem = (filter, isChecked) => {
   const {name, count} = filter;
@@ -27,4 +29,27 @@ const getTempFilters = (filterItems) => {
   </section>`;
 };
 
-export {getTempFilters};
+class TempFilters {
+  constructor(filters) {
+    this._filters = filters;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getTempFilters(this._filters);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+export {TempFilters};
