@@ -1,11 +1,10 @@
-import {isTaskExpired, isTaskRepeating, humanizeTaskDueDate, createElement} from "../utills.js";
+import {isTaskExpired, isTaskRepeating, formatTaskDueDate} from "../utils/task.js";
+import Abstract from "./abstract.js";
 
 const getTempCard = (data) => {
   const {color, description, dueDate, repeating, isArchive, isFavorite} = data;
 
-  const date = dueDate !== null
-    ? humanizeTaskDueDate(dueDate)
-    : ``;
+  const date = formatTaskDueDate(dueDate);
 
   const deadlineClassName = isTaskExpired(dueDate)
     ? `card--deadline`
@@ -90,27 +89,25 @@ const getTempCard = (data) => {
 </article>`;
 };
 
-class TempCard {
+class TempCard extends Abstract {
   constructor(task) {
+    super();
     this._task = task;
-
-    this._element = null;
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getTemplate() {
     return getTempCard(this._task);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.card__btn--edit`).addEventListener(`click`, this._editClickHandler);
   }
 }
 

@@ -1,4 +1,4 @@
-import {getRandomItemArr, getRandomNumber, getRandomTags} from "../utills.js";
+import {getRandomItemArr, getRandomNumber, getRandomTags} from "../utils/common.js";
 import dayjs from "dayjs";
 import {COLORS} from '../const.js';
 

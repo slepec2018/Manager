@@ -1,4 +1,4 @@
-import {createElement} from "../utills.js";
+import Abstract from "./abstract.js";
 
 // Функция формирования шаблонов кнопок фильтров
 const getTempFilterItem = (filter, isChecked) => {
@@ -29,26 +29,14 @@ const getTempFilters = (filterItems) => {
   </section>`;
 };
 
-class TempFilters {
+class TempFilters extends Abstract {
   constructor(filters) {
+    super();
     this._filters = filters;
-    this._element = null;
   }
 
   getTemplate() {
     return getTempFilters(this._filters);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
 

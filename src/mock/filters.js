@@ -1,4 +1,4 @@
-import {isTaskExpired, isTaskRepeating, isTaskExpiringToday} from "../utills.js";
+import {isTaskExpired, isTaskRepeating, isTaskExpiringToday} from "../utils/task.js";
 
 // Функция счетчик данных актуальности задач из заданного массива
 const taskToFilterMap = {

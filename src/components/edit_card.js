@@ -1,5 +1,6 @@
 import {COLORS} from "../const.js";
-import {isTaskRepeating, humanizeTaskDueDate, createElement} from "../utills.js";
+import {isTaskRepeating, formatTaskDueDate} from "../utils/task.js";
+import Abstract from "./abstract.js";
 
 const BLANK_TASK = {
   color: COLORS[0],
@@ -30,7 +31,7 @@ const createTaskEditDateTemplate = (dueDate) => {
           type="text"
           placeholder=""
           name="date"
-          value="${humanizeTaskDueDate(dueDate)}"
+          value="${formatTaskDueDate(dueDate)}"
         />
       </label>
     </fieldset>` : ``}
@@ -192,26 +193,25 @@ const getTempEditCard = (task = {}) => {
 </article>`;
 };
 
-class TempEditCard {
+class TempEditCard extends Abstract {
   constructor(task = BLANK_TASK) {
+    super();
     this._task = task;
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
     return getTempEditCard(this._task);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }
 

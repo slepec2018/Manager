@@ -10,7 +10,8 @@ import {TempNoTask} from "./components/no_task.js";
 
 import {generateCardData} from "./mock/card_mock.js";
 import {generateFilter} from "./mock/filters.js";
-import {render, RenderPosition} from "./utills.js";
+// import {render, RenderPosition} from "./utills.js";
+import {render, RenderPosition, replace, remove} from "./utils/render.js";
 
 // Переменные основных блоков
 const main = document.querySelector(`.main`);
@@ -31,11 +32,13 @@ const renderCard = (taskListElement, task) => {
   const taskEditComponent = new TempEditCard(task);
 
   const replaceCardToForm = () => {
-    taskListElement.replaceChild(taskEditComponent.getElement(), taskComponent.getElement());
+    // taskListElement.replaceChild(taskEditComponent.getElement(), taskComponent.getElement());
+    replace(taskEditComponent, taskComponent);
   };
 
   const replaceFormToCard = () => {
-    taskListElement.replaceChild(taskComponent.getElement(), taskEditComponent.getElement());
+    // taskListElement.replaceChild(taskComponent.getElement(), taskEditComponent.getElement());
+    replace(taskComponent, taskEditComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -46,18 +49,18 @@ const renderCard = (taskListElement, task) => {
     }
   };
 
-  taskComponent.getElement().querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
+  taskComponent.setEditClickHandler(() => {
     replaceCardToForm();
     document.addEventListener(`keydown`, onEscKeyDown);
   });
 
-  taskEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
+  taskEditComponent.setFormSubmitHandler(() => {
     replaceFormToCard();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  render(taskListElement, taskComponent.getElement(), RenderPosition.BEFOREEND);
+  // render(taskListElement, taskComponent.getElement(), RenderPosition.BEFOREEND);
+  render(taskListElement, taskComponent, RenderPosition.BEFOREEND);
 };
 
 // Рендеринг меню
@@ -66,7 +69,8 @@ const renderBoard = (boardContainer, boardTasks) => {
   const boardComponent = new TempCatalog();
   const taskListComponent = new TempCardList();
 
-  render(boardContainer, boardComponent.getElement(), RenderPosition.BEFOREEND);
+  // render(boardContainer, boardComponent.getElement(), RenderPosition.BEFOREEND);
+  render(boardContainer, boardComponent, RenderPosition.BEFOREEND);
 
   // По условию заглушка должна показываться,
   // когда нет задач или все задачи в архиве.
@@ -76,12 +80,16 @@ const renderBoard = (boardContainer, boardTasks) => {
   // мы можем опустить "tasks.length === 0".
   // p.s. А метод some на пустом массиве наборот вернет false
   if (boardTasks.every((task) => task.isArchive)) {
-    render(boardComponent.getElement(), new TempNoTask().getElement(), RenderPosition.AFTERBEGIN);
+    // render(boardComponent.getElement(), new TempNoTask().getElement(), RenderPosition.AFTERBEGIN);
+    render(boardComponent, new TempNoTask(), RenderPosition.AFTERBEGIN);
     return;
   }
 
-  render(boardComponent.getElement(), new TempSort().getElement(), RenderPosition.BEFOREEND);
-  render(boardComponent.getElement(), taskListComponent.getElement(), RenderPosition.BEFOREEND);
+  // render(boardComponent.getElement(), new TempSort().getElement(), RenderPosition.BEFOREEND);
+  // render(boardComponent.getElement(), taskListComponent.getElement(), RenderPosition.BEFOREEND);
+  render(boardComponent, new TempSort(), RenderPosition.AFTERBEGIN);
+  render(boardComponent, taskListComponent, RenderPosition.BEFOREEND);
+
 
   boardTasks
     .slice(0, Math.min(tasks.length, TASK_COUNT_PER_STEP))
@@ -92,10 +100,10 @@ const renderBoard = (boardContainer, boardTasks) => {
 
     const loadMoreButtonComponent = new TempButtonLoad();
 
-    render(boardComponent.getElement(), loadMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
+    // render(boardComponent.getElement(), loadMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
+    render(boardComponent, loadMoreButtonComponent, RenderPosition.BEFOREEND);
 
-    loadMoreButtonComponent.getElement().addEventListener(`click`, (evt) => {
-      evt.preventDefault();
+    loadMoreButtonComponent.setClickHandler(() => {
       boardTasks
         .slice(renderedTaskCount, renderedTaskCount + TASK_COUNT_PER_STEP)
         .forEach((boardTask) => renderCard(taskListComponent.getElement(), boardTask));
@@ -103,16 +111,19 @@ const renderBoard = (boardContainer, boardTasks) => {
       renderedTaskCount += TASK_COUNT_PER_STEP;
 
       if (renderedTaskCount >= boardTasks.length) {
-        loadMoreButtonComponent.getElement().remove();
-        loadMoreButtonComponent.removeElement();
+        // loadMoreButtonComponent.getElement().remove();
+        // loadMoreButtonComponent.removeElement();
+        remove(loadMoreButtonComponent);
       }
     });
   }
 };
 
-render(mainControl, new TempMenu().getElement(), RenderPosition.BEFOREEND);
+// render(mainControl, new TempMenu().getElement(), RenderPosition.BEFOREEND);
+render(mainControl, new TempMenu(), RenderPosition.BEFOREEND);
 // Рендеринг фильтров
-render(main, new TempFilters(filters).getElement(), RenderPosition.BEFOREEND);
+// render(main, new TempFilters(filters).getElement(), RenderPosition.BEFOREEND);
+render(main, new TempFilters(filters), RenderPosition.BEFOREEND);
 
 renderBoard(main, tasks);
 
