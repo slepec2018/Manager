@@ -5,10 +5,8 @@ const getTempCatalog = () => {
 </section>`;
 };
 
-class TempCatalog extends Abstract {
+export default class TempCatalog extends Abstract {
   getTemplate() {
     return getTempCatalog();
   }
 }
-
-export {TempCatalog};

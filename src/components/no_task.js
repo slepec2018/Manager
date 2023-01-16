@@ -6,10 +6,9 @@ const createNoTaskTemplate = () => {
   </p>`;
 };
 
-class TempNoTask extends Abstract {
+export default class TempNoTask extends Abstract {
   getTemplate() {
     return createNoTaskTemplate();
   }
 }
 
-export {TempNoTask};

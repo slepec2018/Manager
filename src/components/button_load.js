@@ -4,7 +4,7 @@ const getTempButtonLoad = () => {
   return `<button class="load-more" type="button">load more</button>`;
 };
 
-class TempButtonLoad extends Abstract {
+export default class TempButtonLoad extends Abstract {
   constructor() {
     super();
 
@@ -38,5 +38,3 @@ class TempButtonLoad extends Abstract {
     this.getElement().addEventListener(`click`, this._clickHandler);
   }
 }
-
-export {TempButtonLoad};

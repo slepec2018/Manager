@@ -2,6 +2,12 @@ import {getRandomItemArr, getRandomNumber, getRandomTags} from "../utils/common.
 import dayjs from "dayjs";
 import {COLORS} from '../const.js';
 
+// Date.now() и Math.random() - плохие решения для генерации id
+// в "продуктовом" коде, а для моков самое то.
+// Для "продуктового" кода используйте что-то понадежнее,
+// вроде nanoid - https://github.com/ai/nanoid
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 // Основные данные для мока
 const descriptions = [
   `Изучить теорию`,
@@ -61,6 +67,7 @@ const repeating = dueDate === null
 // Функция создания мока карточки задачи
 const generateCardData = () => {
   return {
+    id: generateId(),
     description: getRandomItemArr(descriptions),
     dueDate,
     repeating,
